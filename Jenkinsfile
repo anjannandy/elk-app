@@ -68,18 +68,21 @@ pipeline {
         }
 
         stage('Build Application') {
-            // Use Dockerized Maven for reproducible builds on most Jenkins agents that support Docker.
-            // If your Jenkins can't run docker, change agent to 'any' and use a preinstalled Maven.
-            agent {
-                docker {
-                    image 'maven:3.9-eclipse-temurin-17'
-                    args '-v $HOME/.m2:/root/.m2'
-                }
-            }
+            // Use Maven directly on the Jenkins agent since Docker is not available
+            // If Maven is not installed on Jenkins, you'll need to install it or use a tool configuration
+            agent any
             steps {
                 echo 'Building application with Maven...'
-                // Default: run a real maven build. Adjust -DskipTests as desired.
-                sh 'mvn -B -DskipTests package'
+                // Check if Maven is available, if not provide helpful error
+                sh '''
+                    if ! command -v mvn &> /dev/null; then
+                        echo "ERROR: Maven not found on Jenkins agent"
+                        echo "Please install Maven on your Jenkins agent or configure Docker socket mounting"
+                        exit 1
+                    fi
+                '''
+                // Run Maven build
+                sh 'mvn -B -DskipTests clean package'
             }
         }
 
