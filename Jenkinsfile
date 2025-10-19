@@ -2,29 +2,22 @@
 // Adjust REGISTRY and secret names below as needed for your environment
 
 pipeline {
-    // Run with no global agent; stages will declare their own agents so this file works
-    // both on standard Jenkins (agent any / docker) and on Kubernetes plugin setups.
     agent any
 
-    // Add triggers to automatically run pipeline on SCM changes
-    triggers {
-        // Poll SCM every 5 minutes for changes
-        pollSCM('H/5 * * * *')
-        // Alternatively, use webhook triggers if your GitHub is configured for it
-        // Or schedule periodic builds: cron('H H * * *')
-    }
+    // Note: triggers in Multibranch pipelines can cause first-scan hangs.
+    // Configure polling at the Multibranch job level instead, or use GitHub webhooks.
+    // triggers {
+    //     pollSCM('H/5 * * * *')
+    // }
 
-    // Add parameter so you can use "Build with Parameters" from the branch UI to force a run
     parameters {
         booleanParam(name: 'KANIKO_ENABLED', defaultValue: false, description: 'Enable Kaniko build')
     }
 
-    // Toggle to enable kaniko/k8s-based image build. Default false so pipeline runs on plain Jenkins.
     environment {
         REGISTRY = 'decker-repo.homelab.com'
         APP_NAME = 'fullstack-elk-app-test'
         BUILD_TAG = "${env.BUILD_NUMBER}"
-        // Allow the parameter to control the Kaniko stage; fallback to 'false' if parameter not set
         KANIKO_ENABLED = "${params.KANIKO_ENABLED ?: 'false'}"
     }
 
