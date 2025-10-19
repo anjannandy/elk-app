@@ -68,21 +68,47 @@ pipeline {
         }
 
         stage('Build Application') {
-            // Use Maven directly on the Jenkins agent since Docker is not available
-            // If Maven is not installed on Jenkins, you'll need to install it or use a tool configuration
+            // Use Maven directly on the Jenkins agent; if missing, download a portable Maven into the workspace
             agent any
             steps {
                 echo 'Building application with Maven...'
-                // Check if Maven is available, if not provide helpful error
                 sh '''
-                    if ! command -v mvn &> /dev/null; then
-                        echo "ERROR: Maven not found on Jenkins agent"
-                        echo "Please install Maven on your Jenkins agent or configure Docker socket mounting"
-                        exit 1
+                    set -euo pipefail
+                    # Choose Maven version to download if not present
+                    MAVEN_VERSION=${MAVEN_VERSION:-3.9.6}
+
+                    if command -v mvn >/dev/null 2>&1; then
+                        echo "Using system mvn: $(mvn -v | head -n1)"
+                        MVN_CMD="mvn"
+                    else
+                        echo "Maven not found on agent — downloading portable Maven ${MAVEN_VERSION} into workspace"
+                        MAVEN_DIR="$WORKSPACE/.maven"
+                        mkdir -p "$MAVEN_DIR"
+                        TARFILE="$MAVEN_DIR/apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+                        if [ ! -f "$TARFILE" ]; then
+                            if command -v curl >/dev/null 2>&1; then
+                                curl -fsSL "https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -o "$TARFILE"
+                            elif command -v wget >/dev/null 2>&1; then
+                                wget -q -O "$TARFILE" "https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+                            else
+                                echo "ERROR: neither curl nor wget is available to download Maven"
+                                exit 1
+                            fi
+                        else
+                            echo "Found cached Maven archive"
+                        fi
+
+                        tar -xzf "$TARFILE" -C "$MAVEN_DIR"
+                        MAVEN_HOME="$MAVEN_DIR/apache-maven-${MAVEN_VERSION}"
+                        export MAVEN_HOME
+                        export PATH="$MAVEN_HOME/bin:$PATH"
+                        MVN_CMD="$MAVEN_HOME/bin/mvn"
+                        echo "Downloaded Maven: $($MVN_CMD -v | head -n1)"
                     fi
+
+                    # Run the maven build
+                    $MVN_CMD -B -DskipTests clean package
                 '''
-                // Run Maven build
-                sh 'mvn -B -DskipTests clean package'
             }
         }
 
