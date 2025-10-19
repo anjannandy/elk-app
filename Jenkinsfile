@@ -10,15 +10,12 @@ pipeline {
     //     pollSCM('H/5 * * * *')
     // }
 
-    parameters {
-        booleanParam(name: 'KANIKO_ENABLED', defaultValue: false, description: 'Enable Kaniko build')
-    }
-
     environment {
         REGISTRY = 'decker-repo.homelab.com'
         APP_NAME = 'fullstack-elk-app-test'
         BUILD_TAG = "${env.BUILD_NUMBER}"
-        KANIKO_ENABLED = "${params.KANIKO_ENABLED ?: 'false'}"
+        // Default to false since we removed the parameter
+        KANIKO_ENABLED = 'false'
     }
 
     stages {
