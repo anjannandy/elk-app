@@ -10,6 +10,11 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    // Expose a parameter so you can enable/disable Kaniko per-build from the UI
+    parameters {
+        booleanParam(name: 'KANIKO_ENABLED', defaultValue: true, description: 'Enable Kaniko build and push (toggle per run)')
+    }
+
     // Note: triggers in Multibranch pipelines can cause first-scan hangs.
     // Configure polling at the Multibranch job level instead, or use GitHub webhooks.
     // triggers {
@@ -20,8 +25,8 @@ pipeline {
         REGISTRY = 'docker-repo.homelab.com'
         APP_NAME = 'fullstack-elk-app-test'
         BUILD_TAG = "${env.BUILD_NUMBER}"
-        // Default to false since we removed the parameter
-        KANIKO_ENABLED = 'false'
+        // Controlled by parameter so you can toggle Kaniko in the UI
+        KANIKO_ENABLED = "${params.KANIKO_ENABLED}"
     }
 
     stages {
