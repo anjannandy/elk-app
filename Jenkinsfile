@@ -17,7 +17,7 @@ pipeline {
     // }
 
     environment {
-        REGISTRY = 'decker-repo.homelab.com'
+        REGISTRY = 'docker-repo.homelab.com'
         APP_NAME = 'fullstack-elk-app-test'
         BUILD_TAG = "${env.BUILD_NUMBER}"
         // Default to false since we removed the parameter
