@@ -5,6 +5,14 @@ pipeline {
     // both on standard Jenkins (agent any / docker) and on Kubernetes plugin setups.
     agent any
 
+    // Add triggers to automatically run pipeline on SCM changes
+    triggers {
+        // Poll SCM every 5 minutes for changes
+        pollSCM('H/5 * * * *')
+        // Alternatively, use webhook triggers if your GitHub is configured for it
+        // Or schedule periodic builds: cron('H H * * *')
+    }
+
     // Add parameter so you can use "Build with Parameters" from the branch UI to force a run
     parameters {
         booleanParam(name: 'KANIKO_ENABLED', defaultValue: false, description: 'Enable Kaniko build')
