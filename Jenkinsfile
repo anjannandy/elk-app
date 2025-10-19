@@ -8,7 +8,6 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
-        timestamps()
     }
 
     // Note: triggers in Multibranch pipelines can cause first-scan hangs.
