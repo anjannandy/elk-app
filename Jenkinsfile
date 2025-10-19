@@ -75,7 +75,7 @@ pipeline {
                 sh '''
                     set -euo pipefail
                     # Choose Maven version to download if not present
-                    MAVEN_VERSION=${MAVEN_VERSION:-3.9.6}
+                    MAVEN_VERSION=${MAVEN_VERSION:-3.8.9}
 
                     if command -v mvn >/dev/null 2>&1; then
                         echo "Using system mvn: $(mvn -v | head -n1)"
