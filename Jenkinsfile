@@ -1,5 +1,6 @@
 // Jenkinsfile for 06-fullstack-elk-app-test: build image with Kaniko and push to internal registry
 // Adjust REGISTRY and secret names below as needed for your environment
+
 pipeline {
     // Run with no global agent; stages will declare their own agents so this file works
     // both on standard Jenkins (agent any / docker) and on Kubernetes plugin setups.
