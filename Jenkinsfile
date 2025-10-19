@@ -4,6 +4,13 @@
 pipeline {
     agent any
 
+    // Add properties to control build behavior in Multibranch Pipeline
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
     // Note: triggers in Multibranch pipelines can cause first-scan hangs.
     // Configure polling at the Multibranch job level instead, or use GitHub webhooks.
     // triggers {
