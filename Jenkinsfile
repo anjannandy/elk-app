@@ -143,6 +143,7 @@ spec:
     volumeMounts:
     - name: docker-config
       mountPath: /kaniko/.docker
+      readOnly: true
   - name: maven
     image: maven:3.9-eclipse-temurin-17
     command:
@@ -154,7 +155,10 @@ spec:
   volumes:
   - name: docker-config
     secret:
-      secretName: docker-registry-credentials
+      secretName: kaniko-regcred
+      items:
+        - key: .dockerconfigjson
+          path: config.json
   - name: m2-cache
     emptyDir: {}
 '''
